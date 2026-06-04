@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K4 IA PANEL V9.0 - OB55 EDITION</title>
+    <style>
+        :root { 
+            --bg: #050507; 
+            --primary: #9d4edd; 
+            --primary-glow: rgba(157, 78, 221, 0.4);
+            --card-bg: #09090e;
+            --card-border: rgba(157, 78, 221, 0.25);
+            --text-main: #ffffff;
+            --text-muted: #7e7e8c;
+            --locked: #ffaa00;
+        }
+        
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            font-family: 'Segoe UI', -apple-system, Roboto, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            overflow-x: hidden; 
+        }
+
+        /* TELA DE LOGIN */
+        #login-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #050507; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 9999;
+        }
+        .login-card { 
+            width: 85%; max-width: 350px; text-align: center; padding: 35px; 
+            border-radius: 25px; background: #0d0d12; border: 1px solid var(--card-border); 
+            box-shadow: 0 0 25px var(--primary-glow);
+        }
+        .login-title { font-size: 28px; font-weight: 900; color: var(--primary); margin-bottom: 5px; text-shadow: 0 0 15px var(--primary); cursor: pointer; }
+        .input-login { width: 100%; padding: 15px; background: #161621; border: 1px solid #222; border-radius: 12px; color: white; margin-bottom: 15px; text-align: center; outline: none; font-weight: bold; }
+        .input-login:focus { border-color: var(--primary); }
+        .btn-login { width: 100%; padding: 16px; background: var(--primary); border: none; border-radius: 12px; color: white; font-weight: 900; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 15px var(--primary-glow); }
+
+        /* MONITOR DE HARDWARE SUPERIOR */
+        .hw-monitor { 
+            display: none; justify-content: space-around; background: #06060a; 
+            padding: 10px; font-size: 11px; border-bottom: 1px solid #12121f; 
+            color: var(--text-muted); font-weight: 600;
+        }
+        .hw-item b { color: var(--primary); }
+
+        /* CONTAINER PRINCIPAL DO PAINEL */
+        .container { width: 100%; max-width: 420px; margin: auto; padding: 15px; display: none; }
+        
+        /* HEADER ESTILO GEMINI */
+        .header { position: relative; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .model-selector-btn {
+            background: #101018; border: 1px solid #222; padding: 8px 15px; border-radius: 20px;
+            color: white; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+        }
+        
+        /* MENU DROPDOWN */
+        .model-menu {
+            position: absolute; top: 45px; left: 0; width: 250px; background: #0c0c14;
+            border: 1px solid var(--primary); border-radius: 12px; padding: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: none; z-index: 100;
+        }
+        .model-menu.show { display: flex; flex-direction: column; gap: 5px; }
+        .ai-item { padding: 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; color: #ccc; }
+        .ai-item:hover { background: #161622; color: white; }
+        .ai-item.active { background: rgba(157, 78, 221, 0.2); border: 1px solid var(--primary); color: white; }
+        .ai-item.pro-lock { display: flex; justify-content: space-between; color: var(--locked); background: rgba(255, 170, 0, 0.1); border: 1px solid rgba(255, 170, 0, 0.3); }
+
+        /* AREA DO CHAT */
+        .chat-area { 
+            height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; 
+            padding: 15px; background: #040407; border-radius: 18px; border: 1px solid #0f0f1a; 
+            margin-bottom: 12px; box-shadow: inset 0 4px 20px rgba(0,0,0,0.8);
+        }
+        
+        .msg-wrapper { display: flex; gap: 10px; max-width: 90%; align-items: flex-start; }
+        .bot-wrapper { align-self: flex-start; }
+        .user-wrapper { align-self: flex-end; flex-direction: row-reverse; }
+        .bot-img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--primary); background: url('https://files.catbox.moe/g2f04w.jpg') center/cover; flex-shrink: 0; }
+        .bubble { padding: 12px 14px; border-radius: 16px; font-size: 11px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+        .bot { background: #09090f; color: #e2e2e9; border: 1px solid #131322; border-top-left-radius: 4px; }
+        .user { background: linear-gradient(135deg, var(--primary), #7b2cbf); color: white; font-weight: 600; border-top-right-radius: 4px; }
+
+        /* CONTROLES */
+        .control-section { background: var(--card-bg); border: 1px solid #0e0e1a; border-radius: 16px; padding: 12px; margin-bottom: 12px; }
+        .control-label { font-size: 9px; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; font-weight: 800; }
+        .grid-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+        .grid-selector-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+        
+        .sel-btn { padding: 10px 2px; background: #050508; border: 1px solid #141424; color: var(--text-muted); border-radius: 10px; font-size: 9px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .sel-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
+        .sel-btn.locked { color: var(--locked); border-color: rgba(255, 170, 0, 0.3); background: rgba(255, 170, 0, 0.05); }
+
+        /* ENTRADA */
+        .input-group { display: flex; gap: 8px; background: #050508; padding: 6px 6px 6px 15px; border-radius: 30px; border: 1px solid #141424; align-items: center; }
+        .input-group input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 11px; font-weight: 600; }
+        .send-btn { background: var(--primary); border: none; border-radius: 50%; width: 35px; height: 35px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-card">
+        <div class="login-title" onclick="forceBypass()">K4 IA PANEL ⚡</div>
+        <p style="font-size:10px; color:#666; margin-bottom: 25px; font-weight: bold;">V9.0 - OB55 EDITION</p>
+        <input type="text" id="loginKey" class="input-login" placeholder="KEY DE ACESSO" autocomplete="off">
+        <button class="btn-login" onclick="attemptLogin()">INICIAR SISTEMA</button>
+        <div id="loginStatus" style="font-size:11px; margin-top:15px; color:#ff0055; font-weight:bold; height: 15px;"></div>
+    </div>
+</div>
+
+<div class="hw-monitor" id="hw-monitor-id">
+    <div class="hw-item">Core: <b id="cpu-v">15%</b></div>
+    <div class="hw-item">Mod: <b>Aimbot+FOV</b></div>
+    <div class="hw-item">Patch: <b>OB55</b></div>
+</div>
+
+<div class="container" id="main-panel">
+    <div class="header">
+        <div class="model-selector-btn" onclick="toggleMenu()">
+            ✨ <span id="current-ai-name">ALFA IA 9.0 (Smart)</span> ▾
+        </div>
+        <div class="model-menu" id="model-menu">
+            <div class="ai-item" id="ai-80" onclick="selectAI('8.0', 'ALFA IA 8.0 (Básica)')">ALFA IA 8.0 - Básica</div>
+            <div class="ai-item" id="ai-82" onclick="selectAI('8.2', 'ALFA IA 8.2 (Mediana)')">ALFA IA 8.2 - Mediana</div>
+            <div class="ai-item active" id="ai-90" onclick="selectAI('9.0', 'ALFA IA 9.0 (Smart)')">ALFA IA 9.0 - Smart</div>
+            <div class="ai-item pro-lock" id="ai-100" onclick="clickAi10()">
+                <span>ALFA IA 10.0 (QI 979)</span> <span id="ai-10-lock-status">🔒 PRO</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-area" id="chat-box"></div>
+
+    <div class="control-section">
+        <div class="control-label">🧠 NÍVEL DE RACIOCÍNIO (MOTOR)</div>
+        <div class="grid-selector-2">
+            <button class="sel-btn active" id="r-padrao" onclick="setReasoning('padrao')">Padrão (-1.0)</button>
+            <button class="sel-btn locked" id="r-pro-btn" onclick="unlockPro()">Ultra PRO 🔒</button>
+        </div>
+
+        <div class="control-label" style="margin-top: 10px;">🎮 MODO DE JOGO</div>
+        <div class="grid-selector">
+            <button class="sel-btn active" id="m-br" onclick="setMode('br')">BR RANK</button>
+            <button class="sel-btn" id="m-cs" onclick="setMode('cs')">CS RANK</button>
+            <button class="sel-btn" id="m-gladi" onclick="setMode('gladi')">X1 / Gladi</button>
+        </div>
+
+        <div class="control-label" style="margin-top: 10px;">⚡ SENSIBILIDADE OB55</div>
+        <div class="grid-selector">
+            <button class="sel-btn" id="s-low" onclick="setSensi('low')">Baixa</button>
+            <button class="sel-btn active" id="s-med" onclick="setSensi('med')">Média</button>
+            <button class="sel-btn" id="s-high" onclick="setSensi('high')">Alta</button>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="userInput" placeholder="Ex: Celular, UMP, Desert..." disabled>
+        <button class="send-btn" id="sendBtn" onclick="handleInput()">➤</button>
+    </div>
+</div>
+
+<script>
+    var currentAI = '9.0';
+    var currentSensi = 'med';
+    var currentMode = 'br';
+    var currentReasoning = 'padrao';
+    var isPro = false;
+    var baseMotor = 10.5;
+    var baseQI = 670;
+
+    // Login Tradicional Corrigido
+    function attemptLogin() {
+        var inputVal = document.getElementById('loginKey').value.trim().toLowerCase();
+        var statusDiv = document.getElementById('loginStatus');
+
+        if(inputVal === "alfa") {
+            statusDiv.style.color = "#00ff66";
+            statusDiv.innerText = "AUTENTICADO!";
+            liberarPainel();
+        } else {
+            statusDiv.style.color = "#ff0055";
+            statusDiv.innerText = "KEY INCORRETA! 🛑";
+        }
+    }
+
+    // Atalho Supremo Secreto ao Clicar no Título
+    function forceBypass() {
+        document.getElementById('loginKey').value = "alfa";
+        liberarPainel();
+    }
+
+    function liberarPainel() {
+        document.getElementById('login-screen').style.display = 'none'; 
+        document.getElementById('hw-monitor-id').style.display = 'flex';
+        document.getElementById('main-panel').style.display = 'block';
+        startBotGreetings();
+    }
+
+    setInterval(function() {
+        document.getElementById('cpu-v').innerText = Math.floor(8 + Math.random() * 22) + "%";
+    }, 4000);
+
+    function redirectToInsta() {
+        window.location.href = "https://instagram.com/nz7frases.7";
+    }
+
+    function toggleMenu() {
+        document.getElementById('model-menu').classList.toggle('show');
+    }
+
+    function clickAi10() {
+        if (isPro) selectAI('10.0', 'ALFA IA 10.0 (Suprema)');
+        else redirectToInsta();
+    }
+
+    function selectAI(version, name) {
+        currentAI = version;
+        document.getElementById('current-ai-name').innerText = name;
+        document.querySelectorAll('.ai-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('ai-' + version.replace('.','')).classList.add('active');
+        document.getElementById('model-menu').classList.remove('show');
+        document.getElementById('chat-box').innerHTML = ""; 
+        startBotGreetings();
+    }
+
+    function unlockPro() {
+        if (isPro) { setReasoning('pro'); return; }
+        var pwd = prompt("INSIRA A SENHA VIP:");
+        if (pwd === "ALFA-VIP-2026") {
+            isPro = true;
+            currentReasoning = 'pro';
+            document.documentElement.style.setProperty('--primary', '#ffaa00');
+            document.documentElement.style.setProperty('--primary-glow', 'rgba(255, 170, 0, 0.4)');
+            
+            var btnPro = document.getElementById('r-pro-btn');
+            btnPro.classList.remove('locked'); btnPro.classList.add('active');
+            btnPro.innerText = "Ultra PRO 🔥";
+            document.getElementById('r-padrao').classList.remove('active');
+            
+            var ai10 = document.getElementById('ai-100');
+            ai10.classList.remove('pro-lock');
+            document.getElementById('ai-10-lock-status').innerText = "👑 SUPREMA";
+            
+            document.getElementById('chat-box').innerHTML = "";
+            var parabensTxt = "👑 **ACESSO ULTRA PRO LIBERADO!** 👑\n\nPainel Dourado Ativo. ALFA IA 10.0 e Motor PRO online com precisão máxima de Aimbot + FOV.";
+            typeEffect(parabensTxt, "bot");
+            
+            setTimeout(function() { selectAI('10.0', 'ALFA IA 10.0 (Suprema)'); }, 3000);
+        } else if (pwd !== null) {
+            alert("SENHA INCORRETA!");
+        }
+    }
+
+    function setReasoning(r) {
+        currentReasoning = r;
+        if (r === 'padrao') {
+            document.getElementById('r-padrao').classList.add('active');
+            document.getElementById('r-pro-btn').classList.remove('active');
+        } else if (r === 'pro' && isPro) {
+            document.getElementById('r-pro-btn').classList.add('active');
+            document.getElementById('r-padrao').classList.remove('active');
+        }
+        document.getElementById('chat-box').innerHTML = "";
+        startBotGreetings();
+    }
+
+    function setSensi(s) {
+        currentSensi = s;
+        document.querySelectorAll('[id^="s-"]').forEach(el => el.classList.remove('active'));
+        document.getElementById('s-' + s).classList.add('active');
+    }
+
+    function setMode(m) {
+        currentMode = m;
+        document.querySelectorAll('[id^="m-"]').forEach(el => el.classList.remove('active'));
+        document.getElementById('m-' + m).classList.add('active');
+    }
+
+    function getMotorEstatistica() {
+        var qi = baseQI; var motor = baseMotor;
+        if (currentAI === '8.0') { qi = 120; motor = 4.0; }
+        else if (currentAI === '8.2') { qi = 350; motor = 6.5; }
+        else if (currentAI === '10.0') { qi = 979; motor = 17.8; }
+        if (currentReasoning === 'padrao') { motor = (motor - 1.0).toFixed(1); qi = qi - 1; }
+        else { motor = motor.toFixed(1); }
+        return { qi: qi, motor: motor };
+    }
+
+    function startBotGreetings() {
+        var stats = getMotorEstatistica();
+        var txt = "🤖 **" + document.getElementById('current-ai-name').innerText + " INICIADA**\n\n";
+        txt += "[" + (currentReasoning === 'pro' ? "Raciocínio PRO" : "Raciocínio Padrão") + ": Motor " + stats.motor + " | QI " + stats.qi + "]\n\n";
+        txt += "Digite o modelo do celular e as armas para calibrar a Sensi OB55 com suporte Aimbot + FOV!";
+        typeEffect(txt, "bot");
+    }
+
+    function typeEffect(text, type) {
+        var chat = document.getElementById('chat-box');
+        var inputField = document.getElementById('userInput');
+        var wrap = document.createElement('div');
+        wrap.className = 'msg-wrapper ' + type + '-wrapper';
+        if(type === 'bot') {
+            var img = document.createElement('div'); img.className = 'bot-img';
+            wrap.appendChild(img);
+        }
+        var bubble = document.createElement('div'); bubble.className = 'bubble ' + type;
+        wrap.appendChild(bubble); chat.appendChild(wrap);
+        
+        var i = 0;
+        var typeInterval = setInterval(function() {
+            bubble.innerHTML += text.charAt(i); i++;
+            chat.scrollTop = chat.scrollHeight;
+            if (i >= text.length) { clearInterval(typeInterval); inputField.disabled = false; inputField.focus(); }
+        }, 3); 
+    }
+
+    function handleInput() {
+        var inputField = document.getElementById('userInput');
+        var val = inputField.value.trim();
+        if(!val) return;
+        
+        var uWrap = document.createElement('div'); uWrap.className = "msg-wrapper user-wrapper";
+        var uBubble = document.createElement('div'); uBubble.className = "bubble user";
+        uBubble.innerText = val; uWrap.appendChild(uBubble);
+        document.getElementById('chat-box').appendChild(uWrap);
+        
+        inputField.value = ""; inputField.disabled = true;
+        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+
+        setTimeout(function() {
+            var partes = val.split(',');
+            var modelo = partes[0].trim().toUpperCase();
+            var armas = partes.length > 1 ? partes.slice(1).join(', ').trim().toUpperCase() : "GERAL";
+            var modeName = currentMode === 'br' ? "BR RANK" : (currentMode === 'cs' ? "CS RANK" : "GLADIADORES");
+            var r = function(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; };
+            
+            var baseG = currentSensi === 'low' ? r(110, 140) : (currentSensi === 'med' ? r(145, 175) : r(180, 200));
+            var g = Math.min(200, baseG);
+            var rd = Math.min(200, g - r(2, 6));
+            var m2 = Math.min(200, rd - r(4, 8));
+            var m4 = Math.min(200, m2 - r(3, 7));
+            var dpi = currentSensi === 'low' ? r(450, 550) : (currentSensi === 'med' ? r(600, 750) : r(800, 960));
+            
+            if(modelo.includes("G53") || modelo.includes("MOTOROLA")) { dpi = r(510, 580); g = Math.min(200, g + 10); }
+
+            var res = "🎯 **CÁLCULO OB55 CONCLUÍDO**\n\n";
+            res += "📱 Aparelho: " + modelo + "\n🎮 Modo: " + modeName + "\n\n";
+            res += "• Geral: " + g + "\n• Red Dot: " + rd + "\n• Mira 2x: " + m2 + "\n• Mira 4x: " + m4 + "\n\n⚡ DPI: " + dpi + "\n✅ AIMBOT + FOV INJETADOS!";
+            typeEffect(res, "bot");
+        }, 1000);
+    }
+</script>
+</body>
+</html>
