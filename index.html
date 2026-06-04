@@ -83,7 +83,16 @@
         .msg-wrapper { display: flex; gap: 10px; max-width: 90%; align-items: flex-start; }
         .bot-wrapper { align-self: flex-start; }
         .user-wrapper { align-self: flex-end; flex-direction: row-reverse; }
-        .bot-img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--primary); background: url('https://files.catbox.moe/g2f04w.jpg') center/cover; flex-shrink: 0; }
+        
+        /* Foto do bot com proteção em cor caso o app bloqueie o link externo */
+        .bot-img { 
+            width: 32px; height: 32px; border-radius: 50%; 
+            border: 1px solid var(--primary); 
+            background: #161622 url('https://files.catbox.moe/g2f04w.jpg') center/cover; 
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 10px; font-weight: bold;
+        }
+        
         .bubble { padding: 12px 14px; border-radius: 16px; font-size: 11px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
         .bot { background: #09090f; color: #e2e2e9; border: 1px solid #131322; border-top-left-radius: 4px; }
         .user { background: linear-gradient(135deg, var(--primary), #7b2cbf); color: white; font-weight: 600; border-top-right-radius: 4px; }
@@ -176,7 +185,6 @@
     var baseMotor = 10.5;
     var baseQI = 670;
 
-    // Login Tradicional Corrigido
     function attemptLogin() {
         var inputVal = document.getElementById('loginKey').value.trim().toLowerCase();
         var statusDiv = document.getElementById('loginStatus');
@@ -191,7 +199,6 @@
         }
     }
 
-    // Atalho Supremo Secreto ao Clicar no Título
     function forceBypass() {
         document.getElementById('loginKey').value = "alfa";
         liberarPainel();
@@ -205,7 +212,10 @@
     }
 
     setInterval(function() {
-        document.getElementById('cpu-v').innerText = Math.floor(8 + Math.random() * 22) + "%";
+        var cpuEl = document.getElementById('cpu-v');
+        if(cpuEl) {
+            cpuEl.innerText = Math.floor(8 + Math.random() * 22) + "%";
+        }
     }, 4000);
 
     function redirectToInsta() {
@@ -250,7 +260,9 @@
             document.getElementById('ai-10-lock-status').innerText = "👑 SUPREMA";
             
             document.getElementById('chat-box').innerHTML = "";
-            var parabensTxt = "👑 **ACESSO ULTRA PRO LIBERADO!** 👑\n\nPainel Dourado Ativo. ALFA IA 10.0 e Motor PRO online com precisão máxima de Aimbot + FOV.";
+            
+            // REMOVIDO OS ASTERISCOS DO MARKDOWN PARA NÃO TRAVAR EM APLICATIVO COMPILED
+            var parabensTxt = "👑 ACESSO ULTRA PRO LIBERADO! 👑\n\nPainel Dourado Ativo. ALFA IA 10.0 e Motor PRO online com precisão máxima de Aimbot + FOV.";
             typeEffect(parabensTxt, "bot");
             
             setTimeout(function() { selectAI('10.0', 'ALFA IA 10.0 (Suprema)'); }, 3000);
@@ -296,7 +308,10 @@
 
     function startBotGreetings() {
         var stats = getMotorEstatistica();
-        var txt = "🤖 **" + document.getElementById('current-ai-name').innerText + " INICIADA**\n\n";
+        var currentName = document.getElementById('current-ai-name').innerText;
+        
+        // REMOVIDO OS ASTERISCOS DA EXIBIÇÃO INICIAL TAMBÉM
+        var txt = "🤖 " + currentName + " INICIADA\n\n";
         txt += "[" + (currentReasoning === 'pro' ? "Raciocínio PRO" : "Raciocínio Padrão") + ": Motor " + stats.motor + " | QI " + stats.qi + "]\n\n";
         txt += "Digite o modelo do celular e as armas para calibrar a Sensi OB55 com suporte Aimbot + FOV!";
         typeEffect(txt, "bot");
@@ -308,7 +323,9 @@
         var wrap = document.createElement('div');
         wrap.className = 'msg-wrapper ' + type + '-wrapper';
         if(type === 'bot') {
-            var img = document.createElement('div'); img.className = 'bot-img';
+            var img = document.createElement('div'); 
+            img.className = 'bot-img';
+            img.innerText = "K4"; // Letra fixa caso falte imagem no Webview do app
             wrap.appendChild(img);
         }
         var bubble = document.createElement('div'); bubble.className = 'bubble ' + type;
@@ -316,9 +333,17 @@
         
         var i = 0;
         var typeInterval = setInterval(function() {
-            bubble.innerHTML += text.charAt(i); i++;
-            chat.scrollTop = chat.scrollHeight;
-            if (i >= text.length) { clearInterval(typeInterval); inputField.disabled = false; inputField.focus(); }
+            if (i < text.length) {
+                bubble.innerHTML += text.charAt(i);
+                i++;
+                chat.scrollTop = chat.scrollHeight;
+            } else {
+                clearInterval(typeInterval);
+                if(inputField) {
+                    inputField.disabled = false;
+                    inputField.focus();
+                }
+            }
         }, 3); 
     }
 
@@ -351,7 +376,8 @@
             
             if(modelo.includes("G53") || modelo.includes("MOTOROLA")) { dpi = r(510, 580); g = Math.min(200, g + 10); }
 
-            var res = "🎯 **CÁLCULO OB55 CONCLUÍDO**\n\n";
+            // REMOVIDO OS ASTERISCOS DOS CÁLCULOS FINAIS
+            var res = "🎯 CÁLCULO OB55 CONCLUÍDO\n\n";
             res += "📱 Aparelho: " + modelo + "\n🎮 Modo: " + modeName + "\n\n";
             res += "• Geral: " + g + "\n• Red Dot: " + rd + "\n• Mira 2x: " + m2 + "\n• Mira 4x: " + m4 + "\n\n⚡ DPI: " + dpi + "\n✅ AIMBOT + FOV INJETADOS!";
             typeEffect(res, "bot");
