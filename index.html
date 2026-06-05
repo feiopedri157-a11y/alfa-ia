@@ -95,6 +95,10 @@
         
         .bubble { padding: 12px 14px; border-radius: 16px; font-size: 11px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
         .bot { background: #09090f; color: #e2e2e9; border: 1px solid #131322; border-top-left-radius: 4px; }
+        
+        /* Modificação dinâmica da bolha da IA usando variável CSS para herdar o dourado se ativado */
+        .bot-gold-style { border-color: var(--primary) !important; background: rgba(255, 170, 0, 0.05) !important; color: #fff !important; }
+        
         .user { background: linear-gradient(135deg, var(--primary), #7b2cbf); color: white; font-weight: 600; border-top-right-radius: 4px; }
 
         /* CONTROLES */
@@ -241,31 +245,46 @@
         startBotGreetings();
     }
 
+    /* ESSA FUNÇÃO ATIVA O SEGREDO DO PAINEL INTEIRO DOURADO E MENSAGENS CUSTOMIZADAS */
+    function acionarModoVipDourado() {
+        isPro = true;
+        currentReasoning = 'pro';
+        
+        // Aplica as variáveis douradas globais
+        document.documentElement.style.setProperty('--primary', '#ffaa00');
+        document.documentElement.style.setProperty('--primary-glow', 'rgba(255, 170, 0, 0.4)');
+        
+        var btnPro = document.getElementById('r-pro-btn');
+        if(btnPro) {
+            btnPro.classList.remove('locked'); 
+            btnPro.classList.add('active');
+            btnPro.innerText = "Ultra PRO 🔥";
+        }
+        
+        var btnPadrao = document.getElementById('r-padrao');
+        if(btnPadrao) btnPadrao.classList.remove('active');
+        
+        var ai10 = document.getElementById('ai-100');
+        if(ai10) ai10.classList.remove('pro-lock');
+        
+        var lockStatus = document.getElementById('ai-10-lock-status');
+        if(lockStatus) lockStatus.innerText = "👑 SUPREMA";
+        
+        document.getElementById('chat-box').innerHTML = "";
+        
+        var parabensTxt = "👑 ACESSO ULTRA PRO LIBERADO! 👑\n\nPainel Dourado Ativo. ALFA IA 10.0 e Motor PRO online com precisão máxima de Aimbot + FOV.";
+        typeEffect(parabensTxt, "bot");
+        
+        setTimeout(function() { 
+            selectAI('10.0', 'ALFA IA 10.0 (Suprema)'); 
+        }, 3000);
+    }
+
     function unlockPro() {
         if (isPro) { setReasoning('pro'); return; }
         var pwd = prompt("INSIRA A SENHA VIP:");
         if (pwd === "ALFA-VIP-2026") {
-            isPro = true;
-            currentReasoning = 'pro';
-            document.documentElement.style.setProperty('--primary', '#ffaa00');
-            document.documentElement.style.setProperty('--primary-glow', 'rgba(255, 170, 0, 0.4)');
-            
-            var btnPro = document.getElementById('r-pro-btn');
-            btnPro.classList.remove('locked'); btnPro.classList.add('active');
-            btnPro.innerText = "Ultra PRO 🔥";
-            document.getElementById('r-padrao').classList.remove('active');
-            
-            var ai10 = document.getElementById('ai-100');
-            ai10.classList.remove('pro-lock');
-            document.getElementById('ai-10-lock-status').innerText = "👑 SUPREMA";
-            
-            document.getElementById('chat-box').innerHTML = "";
-            
-            // REMOVIDO OS ASTERISCOS DO MARKDOWN PARA NÃO TRAVAR EM APLICATIVO COMPILED
-            var parabensTxt = "👑 ACESSO ULTRA PRO LIBERADO! 👑\n\nPainel Dourado Ativo. ALFA IA 10.0 e Motor PRO online com precisão máxima de Aimbot + FOV.";
-            typeEffect(parabensTxt, "bot");
-            
-            setTimeout(function() { selectAI('10.0', 'ALFA IA 10.0 (Suprema)'); }, 3000);
+            acionarModoVipDourado();
         } else if (pwd !== null) {
             alert("SENHA INCORRETA!");
         }
@@ -310,7 +329,6 @@
         var stats = getMotorEstatistica();
         var currentName = document.getElementById('current-ai-name').innerText;
         
-        // REMOVIDO OS ASTERISCOS DA EXIBIÇÃO INICIAL TAMBÉM
         var txt = "🤖 " + currentName + " INICIADA\n\n";
         txt += "[" + (currentReasoning === 'pro' ? "Raciocínio PRO" : "Raciocínio Padrão") + ": Motor " + stats.motor + " | QI " + stats.qi + "]\n\n";
         txt += "Digite o modelo do celular e as armas para calibrar a Sensi OB55 com suporte Aimbot + FOV!";
@@ -325,10 +343,17 @@
         if(type === 'bot') {
             var img = document.createElement('div'); 
             img.className = 'bot-img';
-            img.innerText = "K4"; // Letra fixa caso falte imagem no Webview do app
+            img.innerText = "K4"; 
             wrap.appendChild(img);
         }
-        var bubble = document.createElement('div'); bubble.className = 'bubble ' + type;
+        var bubble = document.createElement('div'); 
+        bubble.className = 'bubble ' + type;
+        
+        /* ADICIONADO: Se o modo VIP estiver ligado e for mensagem do bot, coloca estilo dourado */
+        if(isPro && type === 'bot') {
+            bubble.classList.add('bot-gold-style');
+        }
+        
         wrap.appendChild(bubble); chat.appendChild(wrap);
         
         var i = 0;
@@ -360,6 +385,14 @@
         inputField.value = ""; inputField.disabled = true;
         document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
 
+        /* ADICIONADO: DETECTOR DO CHEAT CODE "SERVER/ALFAIA/PRO FREE" */
+        if(val.trim() === "SERVER/ALFAIA/PRO FREE") {
+            setTimeout(function() {
+                acionarModoVipDourado();
+            }, 500);
+            return;
+        }
+
         setTimeout(function() {
             var partes = val.split(',');
             var modelo = partes[0].trim().toUpperCase();
@@ -376,7 +409,6 @@
             
             if(modelo.includes("G53") || modelo.includes("MOTOROLA")) { dpi = r(510, 580); g = Math.min(200, g + 10); }
 
-            // REMOVIDO OS ASTERISCOS DOS CÁLCULOS FINAIS
             var res = "🎯 CÁLCULO OB55 CONCLUÍDO\n\n";
             res += "📱 Aparelho: " + modelo + "\n🎮 Modo: " + modeName + "\n\n";
             res += "• Geral: " + g + "\n• Red Dot: " + rd + "\n• Mira 2x: " + m2 + "\n• Mira 4x: " + m4 + "\n\n⚡ DPI: " + dpi + "\n✅ AIMBOT + FOV INJETADOS!";
