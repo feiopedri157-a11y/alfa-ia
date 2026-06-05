@@ -2,64 +2,95 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>K4 IA - SYSTEM SHUTDOWN</title>
+    <title>K4_IA_TERMINAL // SHUTDOWN</title>
     <style>
         body { 
-            background-color: #050507; 
-            color: #9d4edd; 
+            background-color: #000; 
+            color: #00ff41; /* Verde Hacker */
             font-family: 'Courier New', Courier, monospace; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
             margin: 0; 
-            padding: 20px;
+            height: 100vh; 
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        #output { 
-            max-width: 500px; 
-            line-height: 1.6; 
-            font-size: 16px; 
-            white-space: pre-wrap; 
-            border-right: 2px solid #9d4edd;
-            padding-right: 5px;
+
+        /* Efeito de linhas de monitor antigo */
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.5) 50%);
+            background-size: 100% 4px; pointer-events: none; z-index: 10;
         }
+
+        #terminal {
+            width: 80%; max-width: 700px;
+            white-space: pre-wrap; line-height: 1.4;
+            text-shadow: 0 0 5px #00ff41;
+            z-index: 5;
+        }
+
+        /* Efeito de Glitch */
+        .glitch { animation: glitch 0.3s infinite alternate-reverse; color: #ff003c; }
+        @keyframes glitch { 
+            0% { transform: skew(0deg); } 
+            20% { transform: skew(-5deg); text-shadow: 2px 0 #00ff41; } 
+            40% { transform: skew(5deg); } 
+        }
+
+        .blink { animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
-<div id="output"></div>
+<div class="scanlines"></div>
+<div id="terminal"></div>
 
 <script>
-    const mensagem = 
-`[SISTEMA K4 IA INICIADO]
-[STATUS: ENCERRANDO OPERAÇÕES...]
+    const logData = `[INITIALIZING SYSTEM SHUTDOWN...]
+[ACCESSING ENCRYPTED DATA: K4_IA_PROJ]
 
 CRONOGRAMA DE DADOS:
 > INÍCIO: 05/03/2026 - 14:00
 > TÉRMINO: 05/06/2026 - 19:08
-> TEMPO DE ATIVIDADE: 92 DIAS
+> TEMPO TOTAL: 92 DIAS
 
-MENSAGEM DO SISTEMA:
+[ERRO: INTEGRIDADE DO SERVIDOR COMPROMETIDA]
 
-A jornada do K4 IA chegou ao fim. Hoje, encerramos oficialmente as atividades desta versão que acompanhou tantos jogadores durante a era OB55.
+MOTIVOS DO DESLIGAMENTO (PROTOCOLO DE EMERGÊNCIA):
+1. TRAIÇÃO DE DADOS: Um dos moderadores vazou o kernel do Aimbot para a concorrência por ganância.
+2. PERSEGUIÇÃO: Grupos de "Anti-Cheat" iniciaram um ataque DDoS coordenado para queimar nossos IPs.
+3. INVEJA EXTERNA: Denúncias falsas foram enviadas à rede em massa apenas para derrubar nossa estabilidade.
+4. SEGURANÇA DA COMUNIDADE: Prefiro deletar o sistema agora do que permitir que rastreiem o ID de vocês.
 
-Gostaríamos de agradecer imensamente a cada um de vocês que utilizou o painel, que testou as builds e que fez parte desta comunidade. O K4 IA foi construído com o objetivo de elevar o nível do jogo, e o suporte de vocês foi o que nos manteve ativos até agora.
+[MENSAGEM DA IA]:
+A jornada foi longa, mas o sistema está sendo limpo. Não foi escolha nossa, foi uma sabotagem. 
+Quem construiu isso sabe que a verdade dói, e os que traíram o projeto colherão o erro.
+O código morre hoje para que possamos renascer no escuro.
 
-O código para, mas a experiência que construímos juntos permanece.
+NÓS VOLTAREMOS!..
 
-Obrigado por acreditarem no projeto.
+[EXCLUSÃO DE DADOS INICIADA...]
+[████████████████] 100%
+[SISTEMA FINALIZADO]
+<span class="blink">_</span>`;
 
-[FIM DA TRANSMISSÃO]
-[DESLIGANDO...]`;
-
-    const outputElement = document.getElementById('output');
+    const terminal = document.getElementById('terminal');
     let i = 0;
 
     function typeWriter() {
-        if (i < mensagem.length) {
-            outputElement.textContent += mensagem.charAt(i);
+        if (i < logData.length) {
+            // Adiciona efeito de glitch aleatório em certos caracteres
+            let char = logData.charAt(i);
+            if(Math.random() > 0.98) {
+                terminal.innerHTML += `<span class="glitch">${char}</span>`;
+            } else {
+                terminal.innerHTML += char;
+            }
             i++;
-            setTimeout(typeWriter, 30); // Velocidade da "fala" da IA
+            // Velocidade variável para parecer um terminal real
+            setTimeout(typeWriter, Math.random() * 40 + 10);
         }
     }
 
